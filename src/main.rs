@@ -51,6 +51,7 @@ impl RGB {
     }
 
     pub fn blend(&self, other: Self, alpha: f64, beta: f64) -> Self {
+        asser_eq!(alpha + beta, 1f64); 
         *self * alpha + other * beta
     }
 
@@ -115,13 +116,13 @@ impl Gradient {
     }
     
     pub fn generate_gradient(start: RGB, end: RGB, steps: usize) -> Vec<RGB> {
-        // If no value is supplied, use a 256 colour gradient, otherwise use the supplied value 
         let mut gradient = vec![RGB::default(); steps]; 
 
         for (idx, c) in gradient.iter_mut().enumerate() {
             let a: f64 = idx as f64 / steps as f64; 
             let b: f64 = (steps - idx) as f64 / steps as f64; 
             *c = start.blend(end, a, b); 
+            println!("{:.3} * {} + {:.3} * {} = {}", a, start, b, end, c);  
         }
 
         gradient 
@@ -129,7 +130,7 @@ impl Gradient {
 
     pub fn generate_image<S: AsRef<str>>(&self, filename: S) -> Result<(), Box<dyn Error>> {
         let mut img_buf = image::ImageBuffer::new(
-            self.steps.try_into()?,
+            600, 
             self.steps.try_into()?
         ); 
 
@@ -158,7 +159,7 @@ impl IntoIterator for Gradient {
 fn main() -> Result<(), Box<dyn Error>> {
     let a = RGB::random(); 
     let b = RGB::random();
-    let gradient = Gradient::new(a, b, 256); 
+    let gradient = Gradient::new(a, b, 1024); 
     gradient.generate_image("gradient.png")?; 
     Ok(())
 }
